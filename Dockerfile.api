@@ -8,8 +8,11 @@ COPY packages/contracts/package.json packages/contracts/package.json
 RUN pnpm install --frozen-lockfile
 COPY apps/api apps/api
 COPY packages/contracts packages/contracts
+# Modern deploy derives a frozen production lockfile. Registry access remains available
+# for pnpm's metadata checks; the legacy implementation re-resolves the dependency graph.
+# This API has no workspace dependencies, so injection is only enabled for this command.
 RUN pnpm --filter @estoque/api build \
-    && pnpm --filter @estoque/api deploy --prod --legacy --offline /out/api
+    && pnpm --filter @estoque/api deploy --prod --config.inject-workspace-packages=true /out/api
 
 FROM node:24.19.0-bookworm-slim AS runtime
 ENV NODE_ENV=production

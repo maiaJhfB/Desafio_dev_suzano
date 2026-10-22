@@ -38,7 +38,7 @@ Total de **81 testes distintos aprovados**: 25 backend, 29 frontend, 17 integra�
 
 As imagens usam etapas separadas de build e execução, usuário `node`, dependências de produção e Next standalone. Migrations e seed executam JavaScript compilado. O pacote de produção da API foi validado: NestJS, TypeORM e PostgreSQL disponíveis; TypeScript, ts-node e Jest ausentes.
 
-Docker não está instalado neste computador. A validação efetiva dos containers é executada pelo job **Docker — ambiente completo e compra real** no [GitHub Actions](https://github.com/maiaJhfB/Desafio_dev_suzano/actions/workflows/ci.yml). Na preparação deste registro, a primeira execução remota ainda aguarda o envio do código; existência do workflow não equivale a aprovação.
+Docker não está instalado neste computador. A validação efetiva dos containers é executada pelo job **Docker — ambiente completo e compra real** no [GitHub Actions](https://github.com/maiaJhfB/Desafio_dev_suzano/actions/workflows/ci.yml). A [primeira execução remota](https://github.com/maiaJhfB/Desafio_dev_suzano/actions/runs/39823173947) aprovou a aplicação em Linux e o visual em Windows. O empacotamento Docker revelou dependência de metadados ausentes no cache; o deploy foi ajustado para usar lockfile derivado congelado e consulta aos metadados. A execução completa dos containers será conferida na nova rodada da CI.
 
 O smoke cria um projeto Compose aleatório e descartável, compila as imagens, aguarda healthchecks, migra, executa seed e verifica usuário sem privilégios, dependências, Swagger, CRUD, estoque e checkout no navegador sem service worker. Logs, status e capturas são publicados no artefato `smoke-docker`. A limpeza remove somente os volumes desse projeto de CI.
 
@@ -56,7 +56,7 @@ Origem do logo, imagens, fontes e cores: [registro de assets](brand/assets.json)
 
 ## Entrega e limites
 
-O destino autorizado pelo usuário é [maiaJhfB/Desafio_dev_suzano](https://github.com/maiaJhfB/Desafio_dev_suzano). O commit inicial remoto será preservado. A publicação do código não constitui hospedagem da aplicação.
+O código e a documentação foram enviados ao destino autorizado pelo usuário: [maiaJhfB/Desafio_dev_suzano](https://github.com/maiaJhfB/Desafio_dev_suzano). O commit inicial remoto foi preservado. A publicação do código não constitui hospedagem da aplicação.
 
 JWT é um diferencial opcional e continua fora do escopo implementado. Não há pagamentos, frete ou envio de pedidos à Suzano. Preços e estoque são ilustrativos. Pendentes não reservam estoque. Chaves de idempotência bem-sucedidas permanecem persistidas, sem expiração automática. Não foram medidos carga, latência ou p95.
 

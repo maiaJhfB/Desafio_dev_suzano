@@ -133,6 +133,8 @@ pnpm build
 
 Para integração, mantenha PostgreSQL ativo e crie um banco **descartável cujo nome termine em `_test`**. `pnpm db:local` já cria `catalogo_test`. A suíte executa migrations e limpa as tabelas somente desse banco protegido pelo nome. Sem `TEST_DATABASE_URL`, ela falha com uma orientação, em vez de passar sem executar os testes. Não execute duas instâncias dessa suíte no mesmo banco.
 
+Se estiver usando o banco do Compose, crie o banco de testes uma vez com `docker compose exec db createdb -U catalogo catalogo_test`. Em uma instalação PostgreSQL própria, use um usuário com permissão de criar e alterar tabelas nesse banco descartável.
+
 PowerShell:
 
 ```powershell
