@@ -6,9 +6,9 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// This script only owns a random, disposable CI project. It never accepts another project name.
-if (process.env.CI !== 'true')
-  throw new Error('O smoke Docker deve rodar em CI, em um projeto descartável.');
+// This script only owns a random, disposable project. It never accepts another project name.
+if (process.env.CI !== 'true' && !process.argv.includes('--local'))
+  throw new Error('Execute o smoke em CI ou use --local para criar um projeto descartável.');
 const root = fileURLToPath(new URL('../', import.meta.url));
 const project = `suzano-smoke-${randomUUID().slice(0, 8)}`;
 const artifacts = path.join(root, 'tmp', 'docker-smoke', project);
@@ -22,6 +22,7 @@ const environment = {
   WEB_PORT: '13000',
   CORS_ORIGIN: webOrigin,
   NEXT_PUBLIC_API_BASE_URL: `${apiOrigin}/api/v1`,
+  STORE_PUBLIC_ORIGIN: webOrigin,
 };
 const prefix = ['compose', '--project-name', project, '--file', path.join(root, 'compose.yaml')];
 await mkdir(artifacts, { recursive: true });
@@ -117,7 +118,10 @@ async function verifyApi() {
 async function verifyBrowser() {
   const require = createRequire(new URL('../apps/web/package.json', import.meta.url));
   const { chromium } = require('@playwright/test');
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    channel: process.env.DOCKER_SMOKE_BROWSER_CHANNEL,
+  });
   try {
     // A mock accidentally shipped in the image cannot satisfy this browser check.
     const context = await browser.newContext({
@@ -133,10 +137,20 @@ async function verifyBrowser() {
     await card.waitFor();
     const name = (await card.getByRole('heading').first().innerText()).trim();
     assert.match(name, /Report/);
+    const productImages = page.locator('article img');
+    assert.equal(await productImages.count(), 12, 'Os cards devem exibir imagens dos produtos.');
+    for (const image of await productImages.all()) {
+      await image.scrollIntoViewIfNeeded();
+      await image.evaluate(async (element) => {
+        await element.decode();
+        if (!element.naturalWidth) throw new Error('A imagem do produto não carregou.');
+      });
+    }
     await page.evaluate(async () => {
       await document.fonts.ready;
+      window.scrollTo({ top: 0, behavior: 'instant' });
     });
-    await page.screenshot({ path: path.join(artifacts, 'loja-docker.png') });
+    await page.screenshot({ path: path.join(artifacts, 'loja-docker.png'), fullPage: true });
     await card.getByRole('button', { name: `Adicionar ao carrinho ${name}`, exact: true }).click();
     await page.getByRole('button', { name: 'Carrinho, 1 itens', exact: true }).click();
     const cart = page.getByRole('dialog', { name: 'Seu carrinho', exact: true });
@@ -200,6 +214,7 @@ try {
       'production-dependencies',
       'crud',
       'stock',
+      'product-images',
       'browser-checkout',
     ],
   });

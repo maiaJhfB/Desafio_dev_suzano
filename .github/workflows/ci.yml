@@ -14,10 +14,13 @@ jobs:
           node-version-file: .node-version
       - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @catalogo/web exec playwright install --with-deps chromium
+      # The hosted Ubuntu image already includes Chrome and its system dependencies.
+      # Visual comparisons keep using the lockfile's Chromium in the separate Windows job.
+      - run: google-chrome --version
       - run: node scripts/docker-smoke.mjs
         env:
           CI: 'true'
+          DOCKER_SMOKE_BROWSER_CHANNEL: chrome
       - uses: actions/upload-artifact@v4
         if: always()
         with:

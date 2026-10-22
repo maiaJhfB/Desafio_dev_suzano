@@ -82,6 +82,10 @@ O Compose inicia banco com healthcheck, executa migrations em um job único, ini
 
 Os comandos retornam ao terminal após a inicialização. Acompanhe com `docker compose logs -f api web`; encerre com `docker compose down` (preserva os dados). Libere as portas 3000, 3001 e 5432 antes de subir esse ambiente. As imagens de execução usam usuário sem privilégios e não incluem as ferramentas de desenvolvimento.
 
+Para validar o ambiente completo no Docker Desktop, instale o Chromium com `pnpm --filter @catalogo/web exec playwright install chromium` e execute `node scripts/docker-smoke.mjs --local`. Esse teste usa um projeto temporário, banco próprio e portas 13000, 13001 e 15432; ao terminar, remove somente os containers e volumes criados por ele. Logs e capturas ficam em `tmp/docker-smoke/`.
+
+Ao usar outra origem para o frontend, configure `STORE_PUBLIC_ORIGIN` antes de executar o seed para que as imagens dos produtos de demonstração apontem para o endereço correto. O padrão é `http://localhost:3000`; o smoke configura sua origem automaticamente. O seed preserva registros existentes.
+
 ## API e regras
 
 Prefixo `/api/v1`; atributos em português. `preco_centavos` representa o preço e `total_pedido_centavos` representa o total do pedido do enunciado, ambos em BRL com inteiros. Valores desconhecidos e campos adicionais são rejeitados.

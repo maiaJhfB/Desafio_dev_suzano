@@ -15,6 +15,7 @@ x-api-runtime: &api-runtime
     DATABASE_URL: postgresql://catalogo:catalogo@db:5432/catalogo
     PORT: 3001
     CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    STORE_PUBLIC_ORIGIN: ${STORE_PUBLIC_ORIGIN:-http://localhost:3000}
     NODE_ENV: production
 
 services:
