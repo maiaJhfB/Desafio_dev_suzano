@@ -2,7 +2,7 @@
 
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoaderCircle, PackagePlus, X } from 'lucide-react';
@@ -10,6 +10,7 @@ import { ApiError, createProduct } from '@/lib/api';
 import { parseMoney } from '@/lib/money';
 import { productSchema, type ProductFormValues } from '@/lib/product-schema';
 import { useUI } from './providers';
+import { useAuth } from '@/features/auth/auth-context';
 
 const defaults: ProductFormValues = {
   nome: '',
@@ -22,6 +23,8 @@ const defaults: ProductFormValues = {
 
 export function ProductForm({ onCreated }: { onCreated: () => void }) {
   const { state, dispatch } = useUI();
+  const auth = useAuth();
+  const recoveryRequested = useRef(false);
   const queryClient = useQueryClient();
   const {
     register,
@@ -40,6 +43,11 @@ export function ProductForm({ onCreated }: { onCreated: () => void }) {
     },
     onError: (error) => {
       if (error instanceof ApiError) {
+        if (error.status === 401) {
+          recoveryRequested.current = true;
+          auth.requestAdmin(() => mutation.reset());
+          return;
+        }
         for (const detail of error.response.error.details ?? []) {
           const field = detail.field === 'preco_centavos' ? 'preco' : detail.field;
           if (field in defaults)
@@ -56,6 +64,14 @@ export function ProductForm({ onCreated }: { onCreated: () => void }) {
     }
     // Reset only on opening; mutation state changes must preserve the user's input.
   }, [state.productDialog, reset]);
+
+  useEffect(() => {
+    if (!state.productDialog || auth.isAuthenticated) recoveryRequested.current = false;
+    else if (!auth.loginOpen && !recoveryRequested.current) {
+      recoveryRequested.current = true;
+      auth.requestAdmin(() => mutation.reset());
+    }
+  }, [state.productDialog, auth.isAuthenticated, auth.loginOpen, auth.requestAdmin]);
 
   function submit(values: ProductFormValues) {
     const cents = parseMoney(values.preco);
@@ -89,14 +105,19 @@ export function ProductForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <Dialog.Root
-      open={state.productDialog}
+      open={state.productDialog && !auth.loginOpen}
       onOpenChange={(open) => {
         if (!mutation.isPending) dispatch({ type: open ? 'open' : 'close' });
       }}
     >
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="dialog-content">
+        <Dialog.Content
+          className="dialog-content"
+          onCloseAutoFocus={(event) => {
+            if (auth.loginOpen) event.preventDefault();
+          }}
+        >
           <div className="dialog-header">
             <span className="dialog-icon">
               <PackagePlus size={24} aria-hidden="true" />
@@ -201,6 +222,18 @@ export function ProductForm({ onCreated }: { onCreated: () => void }) {
                 </span>
               </div>
             )}
+            {!auth.isAuthenticated && (
+              <div className="form-api-error">
+                <p>Sua sessão precisa ser renovada. Seus dados foram mantidos.</p>
+                <button
+                  type="button"
+                  className="button button-secondary"
+                  onClick={() => auth.requestAdmin(() => mutation.reset())}
+                >
+                  Entrar novamente
+                </button>
+              </div>
+            )}
             <div className="dialog-actions">
               <Dialog.Close asChild>
                 <button
@@ -211,7 +244,11 @@ export function ProductForm({ onCreated }: { onCreated: () => void }) {
                   Cancelar
                 </button>
               </Dialog.Close>
-              <button type="submit" className="button button-primary" disabled={mutation.isPending}>
+              <button
+                type="submit"
+                className="button button-primary"
+                disabled={mutation.isPending || !auth.isAuthenticated}
+              >
                 {mutation.isPending ? (
                   <LoaderCircle className="spin" size={18} aria-hidden="true" />
                 ) : (

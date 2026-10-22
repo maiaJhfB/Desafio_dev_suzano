@@ -19,6 +19,10 @@ function validationDetails(
 export function setupApp(app: INestApplication) {
   const logger = new Logger('HTTP');
   app.use((request: Request, response: Response, next: NextFunction) => {
+    if (/^\/api\/v1\/auth(?:\/|$)/.test(request.path)) {
+      response.setHeader('Cache-Control', 'no-store');
+      response.setHeader('Pragma', 'no-cache');
+    }
     const candidate = request.headers['x-request-id'];
     const requestId =
       typeof candidate === 'string' &&
@@ -63,7 +67,7 @@ export function setupApp(app: INestApplication) {
     .map((value) => value.trim());
   app.enableCors({
     origin: corsOrigins,
-    allowedHeaders: ['Content-Type', 'X-Request-Id', 'Idempotency-Key'],
+    allowedHeaders: ['Content-Type', 'X-Request-Id', 'Idempotency-Key', 'Authorization'],
     exposedHeaders: ['x-request-id', 'Location', 'Idempotency-Replayed'],
   });
   const document = SwaggerModule.createDocument(
@@ -74,6 +78,13 @@ export function setupApp(app: INestApplication) {
         'Produtos e pedidos. Todos os valores monetários são inteiros em centavos. Pedidos pendentes validam estoque sem reserva; a conclusão baixa o estoque em uma transação.',
       )
       .setVersion('1.0.0')
+      .addBearerAuth({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description:
+          'Token de administrador HS256, válido por 900 segundos. Faça login em /api/v1/auth/login. Não há refresh ou revogação persistida; logout apaga o token no cliente e um token emitido permanece válido até expirar.',
+      })
       .build(),
   );
   SwaggerModule.setup('docs', app, document, { jsonDocumentUrl: '/docs-json' });

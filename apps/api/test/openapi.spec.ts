@@ -9,8 +9,11 @@ import { PedidosController } from '../src/pedidos/pedidos.controller';
 import { PedidosService } from '../src/pedidos/pedidos.service';
 import { ProdutosController } from '../src/produtos/produtos.controller';
 import { ProdutosService } from '../src/produtos/produtos.service';
+import { AuthModule } from '../src/auth/auth.module';
+import { configureAuthTests } from './auth-fixture';
 
 @Module({
+  imports: [AuthModule],
   controllers: [ProdutosController, PedidosController],
   providers: [
     { provide: ProdutosService, useValue: {} },
@@ -24,6 +27,7 @@ describe('Contrato OpenAPI gerado pelos controllers', () => {
   let document: OpenAPIObject;
   const schema = (name: string) => document.components?.schemas?.[name] as SchemaObject;
   beforeAll(async () => {
+    configureAuthTests();
     // Generate the actual API contract without a database or a listening HTTP server.
     app = await NestFactory.create(DocumentationModule, { logger: false, bodyParser: false });
     document = setupApp(app);
@@ -70,5 +74,16 @@ describe('Contrato OpenAPI gerado pelos controllers', () => {
     expect(operation.responses['201']).toMatchObject({
       headers: { 'Idempotency-Replayed': { schema: { enum: ['true', 'false'] } } },
     });
+  });
+  it('documenta Bearer nas operações administrativas e login sem autenticação', () => {
+    expect(document.components?.securitySchemes?.bearer).toMatchObject({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+    });
+    expect(document.paths['/api/v1/produtos'].post?.security).toEqual([{ bearer: [] }]);
+    expect(document.paths['/api/v1/produtos'].get?.security).toBeUndefined();
+    expect(document.paths['/api/v1/auth/login'].post?.security).toBeUndefined();
+    expect(document.paths['/api/v1/auth/me'].get?.security).toEqual([{ bearer: [] }]);
   });
 });

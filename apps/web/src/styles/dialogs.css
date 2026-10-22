@@ -49,6 +49,30 @@
   margin-top: 8px;
   max-width: 390px;
 }
+.auth-session-notice,
+.auth-demo-hint,
+.auth-memory-note {
+  font-size: 11px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+  color: #5f6a80;
+}
+.auth-session-notice,
+.auth-demo-hint {
+  background: #f0f3fb;
+  border-radius: 5px;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.auth-demo-hint strong {
+  font-weight: 600;
+}
+.auth-memory-note {
+  font-size: 10px;
+}
+.auth-form .form-api-error {
+  margin-bottom: 15px;
+}
 .icon-button {
   display: inline-flex;
   align-items: center;

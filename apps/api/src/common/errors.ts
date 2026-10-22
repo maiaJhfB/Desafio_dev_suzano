@@ -52,6 +52,9 @@ const publicCodes: Record<string, string> = {
   HTTP_ERROR: 'ERRO_HTTP',
   INVALID_JSON: 'VALIDACAO_INVALIDA',
   PAYLOAD_TOO_LARGE: 'CORPO_MUITO_GRANDE',
+  UNAUTHORIZED: 'NAO_AUTORIZADO',
+  INVALID_CREDENTIALS: 'CREDENCIAIS_INVALIDAS',
+  LOGIN_RATE_LIMIT: 'LIMITE_TENTATIVAS',
 };
 function normalizedDetails(details: unknown): { field: string; reason: string }[] {
   if (!details) return [];
@@ -134,6 +137,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
         }),
       );
     }
+    if (status === 401) response.setHeader('WWW-Authenticate', 'Bearer');
     response.status(status).json({
       error: {
         code: publicCodes[code] ?? code,

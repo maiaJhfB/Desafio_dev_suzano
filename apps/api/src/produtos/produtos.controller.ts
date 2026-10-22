@@ -11,6 +11,7 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import {
@@ -20,9 +21,11 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreateProdutoDto, ListProdutosDto, UpdateProdutoDto } from './produtos.dto';
 import { ProdutosService } from './produtos.service';
+import { AdminJwtGuard } from '../auth/auth.guards';
 import {
   ErrorResponseDto,
   ProdutoResponseDto,
@@ -46,29 +49,39 @@ export class ProdutosController {
   ) {
     return this.service.find(id);
   }
-  @Post() @ApiCreatedResponse({ type: ProdutoResponseDto }) async create(
-    @Body() dto: CreateProdutoDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  @Post()
+  @UseGuards(AdminJwtGuard)
+  @ApiBearerAuth()
+  @ApiResponse({ status: 401, type: ErrorResponseDto })
+  @ApiCreatedResponse({ type: ProdutoResponseDto })
+  async create(@Body() dto: CreateProdutoDto, @Res({ passthrough: true }) response: Response) {
     const product = await this.service.create(dto);
     response.location(`/api/v1/produtos/${product.id}`);
     return product;
   }
-  @Patch(':id') @ApiOkResponse({ type: ProdutoResponseDto }) update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() dto: UpdateProdutoDto,
-  ) {
+  @Patch(':id')
+  @UseGuards(AdminJwtGuard)
+  @ApiBearerAuth()
+  @ApiResponse({ status: 401, type: ErrorResponseDto })
+  @ApiOkResponse({ type: ProdutoResponseDto })
+  update(@Param('id', new ParseUUIDPipe()) id: string, @Body() dto: UpdateProdutoDto) {
     return this.service.update(id, dto);
   }
-  @Put(':id') @ApiOkResponse({ type: ProdutoResponseDto }) replace(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() dto: CreateProdutoDto,
-  ) {
+  @Put(':id')
+  @UseGuards(AdminJwtGuard)
+  @ApiBearerAuth()
+  @ApiResponse({ status: 401, type: ErrorResponseDto })
+  @ApiOkResponse({ type: ProdutoResponseDto })
+  replace(@Param('id', new ParseUUIDPipe()) id: string, @Body() dto: CreateProdutoDto) {
     return this.service.update(id, dto);
   }
-  @Delete(':id') @ApiNoContentResponse() @HttpCode(204) remove(
-    @Param('id', new ParseUUIDPipe()) id: string,
-  ) {
+  @Delete(':id')
+  @UseGuards(AdminJwtGuard)
+  @ApiBearerAuth()
+  @ApiResponse({ status: 401, type: ErrorResponseDto })
+  @ApiNoContentResponse()
+  @HttpCode(204)
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.service.remove(id);
   }
 }

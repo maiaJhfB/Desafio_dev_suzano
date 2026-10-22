@@ -2,6 +2,7 @@ import type { Ref } from 'react';
 import { Plus } from 'lucide-react';
 import { apiMode } from '@/lib/api';
 import { storeCategories } from './categories';
+import { useAuth } from '@/features/auth/auth-context';
 interface StoreFooterProps {
   onChooseCategory: (category?: string) => void;
   onExplore: () => void;
@@ -14,6 +15,7 @@ export function StoreFooter({
   addButtonRef,
   onCreateProduct,
 }: StoreFooterProps) {
+  const auth = useAuth();
   return (
     <footer className="store-footer">
       <div className="store-container">
@@ -58,11 +60,21 @@ export function StoreFooter({
             <button
               ref={addButtonRef}
               className="button button-secondary"
-              onClick={() => onCreateProduct()}
+              onClick={(event) => auth.requestAdmin(onCreateProduct, event.currentTarget)}
             >
               <Plus size={15} />
               Novo produto
             </button>
+            <button
+              className="admin-access-button"
+              onClick={(event) => {
+                if (auth.isAuthenticated) auth.logout();
+                else auth.requestAdmin(undefined, event.currentTarget);
+              }}
+            >
+              {auth.isAuthenticated ? 'Sair' : 'Acesso administrativo'}
+            </button>
+            {auth.user && <p className="admin-account">Conectado como {auth.user.email}</p>}
           </div>
         </div>
         <div className="footer-bottom">

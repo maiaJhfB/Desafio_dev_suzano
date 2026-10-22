@@ -5,7 +5,8 @@ export default defineConfig({
   testMatch: '**/integrated.spec.ts',
   workers: 1,
   reporter: [['list']],
-  use: { baseURL: 'http://localhost:3000', trace: 'retain-on-failure' },
+  // Protected requests contain bearer tokens; do not capture request bodies or auth headers.
+  use: { baseURL: 'http://localhost:3000', trace: 'off', screenshot: 'off', video: 'off' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {

@@ -52,6 +52,7 @@ jobs:
           node-version-file: .node-version
       - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
+      - run: pnpm auth:setup --test
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck

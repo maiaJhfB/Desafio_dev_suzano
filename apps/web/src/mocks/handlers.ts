@@ -8,10 +8,37 @@ import type { Order } from '@/lib/orders';
 let products: Produto[] = structuredClone(seedProducts);
 const orders = new Map<string, Order>();
 const orderAttempts = new Map<string, { signature: string; order: Order }>();
+export const mockAdminCredentials = { email: 'admin@suzano.local', password: 'SuzanoDemo!2026' };
+const adminTokens = new Map<string, number>();
+let loginAttempts = { count: 0, resetAt: 0 };
+const adminUser = {
+  id: '20000000-0000-4000-8000-000000000001',
+  email: mockAdminCredentials.email,
+  role: 'admin' as const,
+};
+function isAdmin(request: Request): boolean {
+  const token = /^Bearer (\S+)$/i.exec(request.headers.get('Authorization') ?? '')?.[1];
+  return !!token && (adminTokens.get(token) ?? 0) > Date.now();
+}
+function unauthorized() {
+  return HttpResponse.json(
+    {
+      error: {
+        code: 'NAO_AUTORIZADO',
+        message: 'Não autorizado. Faça login novamente.',
+        details: [],
+        request_id: crypto.randomUUID(),
+      },
+    },
+    { status: 401 },
+  );
+}
 export function resetMockProducts(): void {
   products = structuredClone(seedProducts);
   orders.clear();
   orderAttempts.clear();
+  adminTokens.clear();
+  loginAttempts = { count: 0, resetAt: 0 };
 }
 const optionalCents = z.coerce.number().int().min(0).max(100000000).optional();
 const querySchema = z
@@ -66,6 +93,63 @@ function invalid(details: { field: string; reason: string }[]) {
   );
 }
 export const handlers = [
+  http.post(`${apiBaseUrl}/auth/login`, async ({ request }) => {
+    const now = Date.now();
+    if (loginAttempts.resetAt <= now) loginAttempts = { count: 0, resetAt: now + 60000 };
+    if (loginAttempts.count >= 5)
+      return HttpResponse.json(
+        {
+          error: {
+            code: 'LIMITE_TENTATIVAS',
+            message: 'Muitas tentativas de login. Tente novamente mais tarde.',
+            details: [],
+            request_id: crypto.randomUUID(),
+          },
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.max(1, Math.ceil((loginAttempts.resetAt - now) / 1000))),
+          },
+        },
+      );
+    loginAttempts.count++;
+    const input = z
+      .object({
+        email: z.string().trim().toLowerCase().email().max(254),
+        password: z.string().min(1).max(1024),
+      })
+      .strict()
+      .safeParse(await request.json().catch(() => null));
+    if (!input.success)
+      return invalid([{ field: 'request', reason: 'Informe e-mail e senha válidos.' }]);
+    if (
+      input.data.email !== mockAdminCredentials.email ||
+      input.data.password !== mockAdminCredentials.password
+    )
+      return HttpResponse.json(
+        {
+          error: {
+            code: 'CREDENCIAIS_INVALIDAS',
+            message: 'Email ou senha inválidos.',
+            details: [],
+            request_id: crypto.randomUUID(),
+          },
+        },
+        { status: 401, headers: { 'Cache-Control': 'no-store' } },
+      );
+    const access_token = `mock-admin-${crypto.randomUUID()}`;
+    adminTokens.set(access_token, now + 900000);
+    return HttpResponse.json(
+      { access_token, token_type: 'Bearer', expires_in: 900, user: adminUser },
+      { headers: { 'Cache-Control': 'no-store' } },
+    );
+  }),
+  http.get(`${apiBaseUrl}/auth/me`, ({ request }) =>
+    isAdmin(request)
+      ? HttpResponse.json(adminUser, { headers: { 'Cache-Control': 'no-store' } })
+      : unauthorized(),
+  ),
   http.get(`${apiBaseUrl}/produtos`, async ({ request }) => {
     await delay(160);
     const parsed = querySchema.safeParse(Object.fromEntries(new URL(request.url).searchParams));
@@ -110,6 +194,7 @@ export const handlers = [
     });
   }),
   http.post(`${apiBaseUrl}/produtos`, async ({ request }) => {
+    if (!isAdmin(request)) return unauthorized();
     await delay(250);
     let input: unknown;
     try {
@@ -157,7 +242,14 @@ export const handlers = [
         status: z.enum(['Pendente', 'Concluído']).default('Pendente'),
       })
       .strict();
-    const parsed = schema.safeParse(await request.json().catch(() => null));
+    const body = await request.json().catch(() => null);
+    if (
+      (request.headers.has('Authorization') ||
+        (body && typeof body === 'object' && body.status === 'Concluído')) &&
+      !isAdmin(request)
+    )
+      return unauthorized();
+    const parsed = schema.safeParse(body);
     if (!parsed.success)
       return invalid(
         parsed.error.issues.map((issue) => ({
@@ -247,7 +339,8 @@ export const handlers = [
       headers: { Location: `${apiBaseUrl}/pedidos/${order.id}`, 'Idempotency-Replayed': 'false' },
     });
   }),
-  http.get(`${apiBaseUrl}/pedidos/:id`, ({ params }) => {
+  http.get(`${apiBaseUrl}/pedidos/:id`, ({ params, request }) => {
+    if (!isAdmin(request)) return unauthorized();
     const order = orders.get(String(params.id));
     return order
       ? HttpResponse.json(order)

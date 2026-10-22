@@ -6,6 +6,7 @@ import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/app.setup';
 import { databaseOptions } from '../src/database/data-source';
 import { randomUUID } from 'node:crypto';
+import { authEmail, authPassword, configureAuthTests } from './auth-fixture';
 
 const databaseUrl = process.env.TEST_DATABASE_URL;
 // Explicit opt-in and a dedicated database are mandatory: never clean the development database.
@@ -18,7 +19,19 @@ if (!decodeURIComponent(new URL(databaseUrl).pathname).endsWith('_test'))
 describe('API + PostgreSQL — integração e concorrência', () => {
   let app: INestApplication;
   let source: DataSource;
-  const api = () => request(app.getHttpServer());
+  let adminToken: string;
+  const api = () => {
+    const client = request(app.getHttpServer());
+    const authorize = (test: request.Test) => test.set('Authorization', `Bearer ${adminToken}`);
+    return {
+      get: (url: string) => authorize(client.get(url)),
+      post: (url: string) => authorize(client.post(url)),
+      patch: (url: string) => authorize(client.patch(url)),
+      put: (url: string) => authorize(client.put(url)),
+      delete: (url: string) => authorize(client.delete(url)),
+      options: (url: string) => authorize(client.options(url)),
+    };
+  };
   const payload = (overrides: Record<string, unknown> = {}) => ({
     nome: 'Produto de teste',
     categoria: 'Teste',
@@ -33,6 +46,7 @@ describe('API + PostgreSQL — integração e concorrência', () => {
     return response.body;
   };
   beforeAll(async () => {
+    configureAuthTests();
     if (!databaseUrl || !decodeURIComponent(new URL(databaseUrl).pathname).endsWith('_test'))
       throw new Error('TEST_DATABASE_URL precisa apontar para banco com sufixo _test.');
     process.env.DATABASE_URL = databaseUrl;
@@ -44,6 +58,11 @@ describe('API + PostgreSQL — integração e concorrência', () => {
     app = await NestFactory.create(AppModule, { logger: false, bodyParser: false });
     setupApp(app);
     await app.init();
+    const login = await request(app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({ email: authEmail, password: authPassword })
+      .expect(200);
+    adminToken = login.body.access_token;
   });
   beforeEach(async () => {
     await source.query(
@@ -61,6 +80,34 @@ describe('API + PostgreSQL — integração e concorrência', () => {
     await api().get('/api/v1/health/live').expect(200);
     const docs = await api().get('/docs-json').expect(200);
     expect(docs.body.paths['/api/v1/produtos']).toBeDefined();
+  });
+  it('mantém catálogo e pendente públicos sem permitir escrita administrativa ou leitura de pedidos', async () => {
+    const product = await create({ quantidade_estoque: 5 });
+    const guest = () => request(app.getHttpServer());
+    await guest().get('/api/v1/produtos').expect(200);
+    await guest().post('/api/v1/produtos').send(payload()).expect(401);
+    const body = { produtos: [{ produto_id: product.id, quantidade: 1 }] };
+    await guest()
+      .post('/api/v1/pedidos')
+      .send({ ...body, status: 'Concluído' })
+      .expect(401);
+    expect(await source.query('SELECT count(*)::int AS total FROM pedidos')).toEqual([
+      { total: 0 },
+    ]);
+    const order = await guest().post('/api/v1/pedidos').send(body).expect(201);
+    await guest().get('/api/v1/pedidos').expect(401);
+    await guest().get(`/api/v1/pedidos/${order.body.id}`).expect(401);
+    await guest()
+      .patch(`/api/v1/pedidos/${order.body.id}/status`)
+      .send({ status: 'Concluído' })
+      .expect(401);
+    await guest()
+      .post('/api/v1/pedidos')
+      .set('Authorization', 'Bearer inválido')
+      .send(body)
+      .expect(401);
+    expect((await api().get(`/api/v1/produtos/${product.id}`)).body.quantidade_estoque).toBe(5);
+    expect((await api().get('/api/v1/pedidos')).body.meta.total).toBe(1);
   });
   it('rejeita campos extras, decimais, números como texto, UUID inválido e cancelamento na criação', async () => {
     for (const invalid of [

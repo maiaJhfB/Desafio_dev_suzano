@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useReducer, useState, type ReactNode } from 'react';
 import { apiMode, retryTransient } from '@/lib/api';
 import { StoreProvider } from '@/features/store/store-provider';
+import { AuthProvider } from '@/features/auth/auth-provider';
 
 type UIState = { productDialog: boolean; notification: string | null };
 type UIAction =
@@ -84,7 +85,9 @@ export function AppProviders({
     <QueryClientProvider client={queryClient}>
       <UIContext.Provider value={{ state, dispatch }}>
         {ready ? (
-          <StoreProvider>{children}</StoreProvider>
+          <StoreProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </StoreProvider>
         ) : (
           <div className="startup-screen" role={startupError ? 'alert' : 'status'}>
             <img src="/brand/suzano-colorido.svg" alt="Suzano" width={156} height={37} />

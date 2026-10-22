@@ -3,6 +3,7 @@ import addFormats from 'ajv-formats';
 import specification from '../../../docs/openapi.json';
 import { apiBaseUrl, createProduct, listProducts } from '@/lib/api';
 import { defaultFilters } from '@/lib/filters';
+import { authorizeMock } from './auth-helpers';
 
 const ajv = new Ajv({ strict: false });
 addFormats(ajv);
@@ -31,6 +32,7 @@ test('mock respeita schemas OpenAPI da API real e filtros antes da paginação',
   matches('ProdutosPageResponseDto', result);
   expect(result.meta).toMatchObject({ total: 2, total_paginas: 2, limite: 1 });
   expect(result.data[0].nome).toBe('Papel Report Premium A4 75g — 5 pacotes');
+  await authorizeMock();
   const created = await createProduct({
     nome: 'Produto contrato',
     categoria: 'Casa',
@@ -42,9 +44,10 @@ test('mock respeita schemas OpenAPI da API real e filtros antes da paginação',
   matches('ProdutoResponseDto', created);
 });
 test('mock rejeita campos extras, valores inválidos e rota fora do contrato', async () => {
+  const token = await authorizeMock();
   const response = await fetch(`${apiBaseUrl}/produtos`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({
       nome: 'X',
       categoria: 'Casa',

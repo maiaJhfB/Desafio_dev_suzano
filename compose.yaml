@@ -16,6 +16,9 @@ x-api-runtime: &api-runtime
     PORT: 3001
     CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
     STORE_PUBLIC_ORIGIN: ${STORE_PUBLIC_ORIGIN:-http://localhost:3000}
+    JWT_SECRET: ${JWT_SECRET:?Execute pnpm auth:setup para gerar a chave JWT}
+    AUTH_ADMIN_EMAIL: ${AUTH_ADMIN_EMAIL:?Configure AUTH_ADMIN_EMAIL em .env}
+    AUTH_ADMIN_PASSWORD_HASH: ${AUTH_ADMIN_PASSWORD_HASH:?Execute pnpm auth:setup para gerar as credenciais}
     NODE_ENV: production
 
 services:

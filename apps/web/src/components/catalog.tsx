@@ -21,10 +21,12 @@ import { StoreFooter } from '@/features/store/store-footer';
 import { CatalogResults } from '@/features/store/catalog-results';
 import { ProductForm } from './product-form';
 import { useUI } from './providers';
+import { useAuth } from '@/features/auth/auth-context';
 
 export function Catalog() {
   const { state, dispatch } = useUI();
   const store = useStore();
+  const auth = useAuth();
   const { filters, changeFilters } = useProductFilters();
   const addButton = useRef<HTMLButtonElement>(null);
   const cartButton = useRef<HTMLButtonElement>(null);
@@ -125,31 +127,35 @@ export function Catalog() {
         onContinueShopping={explore}
       />
       <div className="toast-region" aria-live="polite" aria-atomic="true">
-        {state.notification && !store.cartOpen && !store.detailProduct && !state.productDialog && (
-          <div className="toast" role="status">
-            <CheckCircle2 size={21} />
-            <p>{state.notification}</p>
-            {state.notification === 'Produto adicionado ao carrinho.' && (
+        {state.notification &&
+          !store.cartOpen &&
+          !store.detailProduct &&
+          !state.productDialog &&
+          !auth.loginOpen && (
+            <div className="toast" role="status">
+              <CheckCircle2 size={21} />
+              <p>{state.notification}</p>
+              {state.notification === 'Produto adicionado ao carrinho.' && (
+                <button
+                  className="toast-cart"
+                  onClick={() => {
+                    dispatch({ type: 'dismiss' });
+                    store.setCartOpen(true);
+                  }}
+                >
+                  Ver carrinho
+                  <ArrowRight size={14} />
+                </button>
+              )}
               <button
-                className="toast-cart"
-                onClick={() => {
-                  dispatch({ type: 'dismiss' });
-                  store.setCartOpen(true);
-                }}
+                className="icon-button"
+                aria-label="Fechar notificação"
+                onClick={() => dispatch({ type: 'dismiss' })}
               >
-                Ver carrinho
-                <ArrowRight size={14} />
+                <X size={18} />
               </button>
-            )}
-            <button
-              className="icon-button"
-              aria-label="Fechar notificação"
-              onClick={() => dispatch({ type: 'dismiss' })}
-            >
-              <X size={18} />
-            </button>
-          </div>
-        )}
+            </div>
+          )}
       </div>
     </>
   );

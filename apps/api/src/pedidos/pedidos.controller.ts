@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import {
@@ -17,11 +18,13 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreatePedidoDto, ListPedidosDto, UpdateStatusDto } from './pedidos.dto';
 import { PedidosService } from './pedidos.service';
 import { presentPedido } from './pedidos.presenter';
 import { IdempotencyKey } from './idempotency-key.pipe';
+import { AdminJwtGuard, CheckoutJwtGuard } from '../auth/auth.guards';
 import {
   ErrorResponseDto,
   PedidoResponseDto,
@@ -36,18 +39,26 @@ import {
 @ApiResponse({ status: 500, type: ErrorResponseDto })
 export class PedidosController {
   constructor(private readonly service: PedidosService) {}
-  @Get() @ApiOkResponse({ type: PedidosPageResponseDto }) async list(
-    @Query() query: ListPedidosDto,
-  ) {
+  @Get()
+  @UseGuards(AdminJwtGuard)
+  @ApiBearerAuth()
+  @ApiResponse({ status: 401, type: ErrorResponseDto })
+  @ApiOkResponse({ type: PedidosPageResponseDto })
+  async list(@Query() query: ListPedidosDto) {
     const response = await this.service.list(query);
     return { ...response, data: response.data.map(presentPedido) };
   }
-  @Get(':id') @ApiOkResponse({ type: PedidoResponseDto }) async find(
-    @Param('id', new ParseUUIDPipe()) id: string,
-  ) {
+  @Get(':id')
+  @UseGuards(AdminJwtGuard)
+  @ApiBearerAuth()
+  @ApiResponse({ status: 401, type: ErrorResponseDto })
+  @ApiOkResponse({ type: PedidoResponseDto })
+  async find(@Param('id', new ParseUUIDPipe()) id: string) {
     return presentPedido(await this.service.find(id));
   }
   @Post()
+  @UseGuards(CheckoutJwtGuard)
+  @ApiResponse({ status: 401, type: ErrorResponseDto })
   @ApiCreatedResponse({
     type: PedidoResponseDto,
     headers: {
@@ -65,7 +76,12 @@ export class PedidosController {
     description:
       'UUID opcional para repetir uma criação com segurança. A mesma chave e os mesmos produtos/quantidades/status retornam a resposta original (201), sem criar outro pedido. Reutilização com dados diferentes retorna 409. As chaves bem-sucedidas permanecem persistidas; falhas não consomem a chave.',
   })
-  @ApiOperation({ summary: 'Criar pedido calculando preços e total no servidor' })
+  @ApiOperation({
+    summary: 'Criar pedido calculando preços e total no servidor',
+    description:
+      'Checkout Pendente é público. Criar Concluído exige Bearer JWT de administrador. Se Authorization for informado, o token é validado em qualquer status.',
+    security: [{}, { bearer: [] }],
+  })
   async create(
     @Body() dto: CreatePedidoDto,
     @Res({ passthrough: true }) response: Response,
@@ -78,6 +94,9 @@ export class PedidosController {
     return order;
   }
   @Patch(':id/status')
+  @UseGuards(AdminJwtGuard)
+  @ApiBearerAuth()
+  @ApiResponse({ status: 401, type: ErrorResponseDto })
   @ApiOkResponse({ type: PedidoResponseDto })
   @ApiOperation({ summary: 'Concluir ou cancelar um pedido pendente' })
   async updateStatus(@Param('id', new ParseUUIDPipe()) id: string, @Body() dto: UpdateStatusDto) {

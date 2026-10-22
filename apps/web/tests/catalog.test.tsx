@@ -6,6 +6,7 @@ import { Catalog } from '@/components/catalog';
 import { apiBaseUrl } from '@/lib/api';
 import { server } from '@/mocks/server';
 import { seedProducts } from '@/mocks/data';
+import { mockAdminCredentials } from '@/mocks/handlers';
 
 jest.mock('next/navigation', () => ({
   usePathname: () => '/produtos',
@@ -18,6 +19,13 @@ const mount = () =>
       <Catalog />
     </AppProviders>,
   );
+async function openAdminForm(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Novo produto' }));
+  await user.type(screen.getByLabelText('E-mail'), mockAdminCredentials.email);
+  await user.type(screen.getByLabelText('Senha'), mockAdminCredentials.password);
+  await user.click(screen.getByRole('button', { name: 'Entrar' }));
+  await screen.findByLabelText('Nome do produto');
+}
 
 test('lista os cinco atributos e muda de carregamento para catálogo', async () => {
   mount();
@@ -36,7 +44,7 @@ test('cadastro insere o produto na lista e anuncia sucesso', async () => {
   const user = userEvent.setup();
   mount();
   await screen.findByRole('heading', { name: seedProducts[0].nome });
-  await user.click(screen.getByRole('button', { name: 'Novo produto' }));
+  await openAdminForm(user);
   await user.type(screen.getByLabelText('Nome do produto'), 'Produto de teste');
   await user.type(screen.getByLabelText('Categoria'), 'Casa');
   await user.type(screen.getByLabelText('Descrição'), 'Produto cadastrado via formulário.');
@@ -54,7 +62,7 @@ test('erro na gravação mantém os valores e permite tentar novamente', async (
   const user = userEvent.setup();
   mount();
   await screen.findByRole('heading', { name: seedProducts[0].nome });
-  await user.click(screen.getByRole('button', { name: 'Novo produto' }));
+  await openAdminForm(user);
   await user.type(screen.getByLabelText('Nome do produto'), 'Preservado');
   await user.type(screen.getByLabelText('Categoria'), 'Casa');
   await user.type(screen.getByLabelText('Descrição'), 'Descrição');

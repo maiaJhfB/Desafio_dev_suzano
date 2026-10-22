@@ -10,18 +10,22 @@ Data da revisão: **22/10/2026**. Ambiente local: Windows, Node **24.19.0**, pnp
 | `pnpm typecheck`                                          | Três áreas sem erros, inclusive após gerar os contratos finais         |
 | `pnpm lint`                                               | Sem erros ou avisos                                                    |
 | `pnpm format:check`                                       | Todos os arquivos aprovados                                            |
-| `pnpm test:unit`                                          | **70 aprovados:** 41 backend em 5 suítes e 29 frontend em 6 suítes     |
-| `TEST_DATABASE_URL=…/catalogo_test pnpm test:integration` | **17 aprovados**, com PostgreSQL real                                  |
+| `pnpm test:unit`                                          | **101 aprovados:** 67 backend em 6 suítes e 34 frontend em 7 suítes    |
+| `TEST_DATABASE_URL=…/catalogo_test pnpm test:integration` | **18 aprovados**, com PostgreSQL real                                  |
 | Integração sem `TEST_DATABASE_URL`                        | Saída 1 com orientação explícita, sem conectar ou pular testes         |
-| `pnpm test:e2e`                                           | **8 aprovados**, incluindo snapshot Windows, teclado e viewport 360 px |
+| `pnpm test:e2e`                                           | **9 aprovados**, incluindo snapshot Windows, teclado e viewport 360 px |
 | `pnpm test:e2e:integrated`                                | **2 aprovados**, com API compilada e PostgreSQL reais                  |
 | Build da API e `pnpm --filter @catalogo/web build`        | Ambos aprovados                                                        |
 | `pnpm db:migrate` e `pnpm db:seed`                        | Nova migration aplicada e 16 produtos Suzano conferidos                |
 | `pnpm contracts:generate` e `pnpm contracts:check`        | OpenAPI exportado, tipos gerados e respostas reais validadas           |
 
-Total de **97 testes distintos aprovados**: 41 backend, 29 frontend, 17 integrações e 10 cenários de navegador, além do smoke Docker completo. O snapshot integra um dos oito cenários mock e não é contado novamente. Esse número não representa uma medição percentual de cobertura.
+Total de **130 testes distintos aprovados**: 67 backend, 34 frontend, 18 integrações e 11 cenários de navegador, além do smoke Docker completo. O snapshot integra um dos nove cenários mock e não é contado novamente. Esse número não representa uma medição percentual de cobertura.
 
 ## Correções verificadas
+
+- **JWT:** login válido/inválido, assinatura, algoritmo, emissor, audiência, expiração e claims obrigatórias; configuração ausente impede iniciar a API. Limite de login e cabeçalho CORS são exercitados por HTTP.
+- **Autorização:** escritas de produtos, leitura de pedidos e conclusão exigem token; checkout pendente sem token continua funcional. PostgreSQL real confirma o limite entre visitante e administrador sem alterar as regras de estoque.
+- **Sessão da interface:** login/logout, recarga, expiração e recuperação após 401 preservam o cadastro. Tokens não ficam no armazenamento persistente. Testes reais desativam traces, vídeos e capturas de falha com credenciais.
 
 - **Validação:** itens aninhados, nulos ou primitivos e `status: null` são rejeitados. UUIDs são normalizados antes de verificar duplicatas; PATCH não permite nulos em campos obrigatórios.
 - **Swagger:** entradas monetárias, estoque e quantidades são inteiros, com limites explícitos; textos obrigatórios indicam conteúdo não vazio. A chave opcional e o cabeçalho de replay estão documentados.
@@ -39,11 +43,11 @@ Total de **97 testes distintos aprovados**: 41 backend, 29 frontend, 17 integra�
 
 As imagens usam etapas separadas de build e execução, usuário `node`, dependências de produção e Next standalone. Migrations e seed executam JavaScript compilado. O pacote de produção da API foi validado: NestJS, TypeORM e PostgreSQL disponíveis; TypeScript, ts-node e Jest ausentes.
 
-O teste completo passou no Docker Desktop local com `node scripts/docker-smoke.mjs --local`, inclusive após corrigir a origem das imagens e exigir seu carregamento. Foram usados banco e portas separados do desenvolvimento; os containers e volumes temporários foram removidos ao terminar.
+O teste completo com JWT passou no Docker Desktop local com `node scripts/docker-smoke.mjs --local`, inclusive após corrigir a origem das imagens e exigir seu carregamento. Foram usados banco e portas separados do desenvolvimento; os containers e volumes temporários foram removidos ao terminar.
 
-A [validação remota final do commit b1dbb58](https://github.com/maiaJhfB/Desafio_dev_suzano/actions/runs/39826353248) aprovou os três jobs: aplicação Linux, visual Windows e Docker com compra real. Inclui os 97 testes, a configuração da origem pública, o carregamento das 12 imagens e o checkout contra os containers. O empacotamento usa lockfile derivado congelado, mantendo as versões e integridades das dependências. Este registro foi atualizado após a aprovação, sem alterações adicionais na implementação.
+A validação remota da ampliação JWT será registrada após a publicação. A [validação anterior do commit b1dbb58](https://github.com/maiaJhfB/Desafio_dev_suzano/actions/runs/39826353248) aprovou os três jobs com 97 testes, antes da autenticação. O empacotamento usa lockfile derivado congelado, mantendo versões e integridades das dependências.
 
-O smoke cria um projeto Compose aleatório e descartável, compila as imagens, aguarda healthchecks, migra, executa seed e verifica usuário sem privilégios, dependências, Swagger, CRUD, estoque, imagens e checkout no navegador sem service worker. Logs, status e capturas são publicados no artefato `smoke-docker` na CI, ou em `tmp/docker-smoke/` localmente. A limpeza remove somente os volumes desse projeto. Na CI, esse smoke usa o Chrome já incluído no runner Ubuntu, evitando reinstalar dependências do navegador; a execução local usa Chromium por padrão.
+O smoke cria um projeto Compose aleatório e descartável, compila as imagens, aguarda healthchecks, migra, executa seed e verifica usuário sem privilégios, dependências, Swagger, login, bloqueios sem JWT, CRUD autenticado, estoque, imagens, checkout público e login/logout no navegador sem service worker. Logs, status e capturas são publicados no artefato `smoke-docker` na CI, ou em `tmp/docker-smoke/` localmente. A limpeza remove somente os volumes desse projeto. Na CI, esse smoke usa o Chrome já incluído no runner Ubuntu, evitando reinstalar dependências do navegador; a execução local usa Chromium por padrão.
 
 Os outros jobs executam verificações estáticas, testes com PostgreSQL e navegador em Linux e comparação visual em Windows. Baselines nunca são atualizadas automaticamente.
 
@@ -56,6 +60,7 @@ Baseline: `apps/web/tests/e2e/catalog.spec.ts-snapshots/catalogo-chromium-win32.
 - [Carrinho mobile, 360 × 800](preview/suzano-carrinho-mobile.png).
 - [Catálogo completo no Docker Desktop](preview/docker-loja.png).
 - [Confirmação do pedido no Docker Desktop](preview/docker-pedido.png).
+- [Acesso administrativo no Docker Desktop](preview/login-admin.png).
 
 Origem do logo, imagens, fontes e cores: [registro de assets](brand/assets.json) e [escopo da loja](loja-suzano.md).
 
@@ -63,6 +68,6 @@ Origem do logo, imagens, fontes e cores: [registro de assets](brand/assets.json)
 
 O código e a documentação foram enviados ao destino autorizado pelo usuário: [maiaJhfB/Desafio_dev_suzano](https://github.com/maiaJhfB/Desafio_dev_suzano). O commit inicial remoto foi preservado. A publicação do código não constitui hospedagem da aplicação.
 
-JWT é um diferencial opcional e continua fora do escopo implementado. Não há pagamentos, frete ou envio de pedidos à Suzano. Preços e estoque são ilustrativos. Pendentes não reservam estoque. Chaves de idempotência bem-sucedidas permanecem persistidas, sem expiração automática. Não foram medidos carga, latência ou p95.
+JWT está implementado e testado, com um administrador por ambiente e sessão de 15 minutos. Não há cadastro público, refresh token ou revogação individual; logout limpa a memória do navegador. Não há pagamentos, frete ou envio de pedidos à Suzano. Preços e estoque são ilustrativos. Pendentes não reservam estoque. Chaves de idempotência bem-sucedidas permanecem persistidas, sem expiração automática. Não foram medidos carga, latência ou p95.
 
 A validação anterior, em 21/10/2026, tinha 46 testes aprovados. Esta revisão amplia os cenários e corrige os pontos identificados na avaliação; a rastreabilidade está na [matriz de requisitos](criterios-avaliacao.md).

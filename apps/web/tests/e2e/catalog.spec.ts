@@ -1,7 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
+import { mockAdminCredentials, openProductFormAsAdmin } from './auth-helpers';
+
+test.use({ trace: 'off' });
 
 async function create(page: Page, name: string) {
-  await page.getByRole('button', { name: 'Novo produto' }).click();
+  await openProductFormAsAdmin(page, mockAdminCredentials);
   await page.getByLabel('Nome do produto', { exact: true }).fill(name);
   await page.getByLabel('Categoria', { exact: true }).fill('Casa');
   await page.getByLabel('Descrição', { exact: true }).fill('Uma nova escolha para o catálogo.');
@@ -41,16 +44,19 @@ test('busca, combina faixa inclusiva, ordena, pagina e restaura pelo histórico'
   await expect(page.locator('article')).toHaveCount(2);
 });
 
-test('cadastro limpa filtros e demonstração reinicia ao recarregar', async ({ page }) => {
-  await page.goto('/produtos?nome=inexistente&preco_max_centavos=1');
-  await expect(page.getByText('Nenhum produto por aqui.')).toBeVisible();
-  await create(page, 'Produto E2E');
-  await expect(page.getByText('“Produto E2E” foi cadastrado com sucesso.')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Produto E2E', exact: true })).toBeVisible();
-  await expect(page).toHaveURL('/produtos');
-  await page.reload();
-  await expect(page.locator('article')).toHaveCount(12);
-  await expect(page.getByRole('heading', { name: 'Produto E2E', exact: true })).toHaveCount(0);
+test.describe('cadastro autenticado no modo mock', () => {
+  // Login request/response bodies must never be retained in traces.
+  test('cadastro limpa filtros e demonstração reinicia ao recarregar', async ({ page }) => {
+    await page.goto('/produtos?nome=inexistente&preco_max_centavos=1');
+    await expect(page.getByText('Nenhum produto por aqui.')).toBeVisible();
+    await create(page, 'Produto E2E');
+    await expect(page.getByText('“Produto E2E” foi cadastrado com sucesso.')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Produto E2E', exact: true })).toBeVisible();
+    await expect(page).toHaveURL('/produtos');
+    await page.reload();
+    await expect(page.locator('article')).toHaveCount(12);
+    await expect(page.getByRole('heading', { name: 'Produto E2E', exact: true })).toHaveCount(0);
+  });
 });
 
 test('layout 360px não transborda e diálogo preserva foco pelo teclado', async ({ page }) => {

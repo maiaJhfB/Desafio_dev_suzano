@@ -12,7 +12,7 @@ Legenda: **O** obrigatório do teste, **D** diferencial do teste, **P** decisão
 | 2. Cumprimento dos requisitos | Fluxos reproduzíveis da matriz abaixo e API documentada                                                              |
 | 3. Qualidade do código        | Regras em serviços, dependências injetáveis, validação de fronteiras, uma fonte por estado, cálculo monetário seguro |
 | 4. Testes                     | Comportamento observado, casos de erro e riscos de estoque; mocks não substituem verificação PostgreSQL              |
-| 5. Extras                     | Paginação, responsividade, documentação, snapshot, Swagger e Docker quando comprovados                               |
+| 5. Extras                     | Paginação, responsividade, documentação, snapshot, Swagger, JWT e Docker quando comprovados                          |
 
 A beleza da interface é critério de desempate no PDF. Ela não substitui funcionamento, legibilidade, testes ou organização.
 
@@ -63,7 +63,7 @@ Os resultados executados da extensão são registrados separadamente em [evidenc
 | BE-09 O   | Ao menos um middleware                                          | Middleware de request ID e logging               | Requisição gera registro e cabeçalho correlacionável                                                                                         |
 | BE-10 O   | Ao menos dois testes unitários                                  | Suíte de serviços                                | Executar teste de cálculo e falta de estoque; ampliar para transições                                                                        |
 | BE-11 D   | Swagger ou Postman                                              | `/docs` e especificação OpenAPI                  | Parâmetros, corpos, status e erros navegáveis                                                                                                |
-| BE-12 D   | JWT simples                                                     | Extra opcional                                   | Só considerar entregue com login, proteção consistente e testes                                                                              |
+| BE-12 D   | JWT simples                                                     | Módulo auth, login, guards e sessão em memória   | Login válido/inválido, expiração, claims, 401/429, proteção real e checkout público testados                                                 |
 | BE-13 D   | Docker para subir ambiente                                      | Dockerfiles e Compose da raiz                    | Subida limpa, migrations e healthchecks; registrar se indisponível                                                                           |
 | BE-14 P   | Soft delete e snapshots                                         | Produtos removidos logicamente; itens históricos | Mudança de preço não reprecifica; exclusão não destrói histórico                                                                             |
 | BE-15 P   | Concorrência e rollback                                         | Locks e unidade de trabalho                      | PostgreSQL real: duas compras disputam o mesmo saldo; somente uma conclui e nenhuma baixa parcial permanece                                  |
@@ -81,9 +81,9 @@ Os resultados executados da extensão são registrados separadamente em [evidenc
 ## Roteiro de demonstração
 
 1. Iniciar modo mock sem API, mostrar os cinco campos, buscar por nome, combinar faixa e ordenar.
-2. Cadastrar produto, confirmar mensagem e visibilidade; navegar na paginação e em tela pequena.
-3. Iniciar modo real, criar produto e recarregar para conferir persistência.
-4. Pelo Swagger, criar pedido pendente e confirmar saldo inalterado; concluir e verificar baixa.
+2. Entrar com o acesso mock indicado no README, cadastrar produto, confirmar mensagem e visibilidade; navegar na paginação e em tela pequena.
+3. Iniciar modo real, entrar com o acesso local, criar produto e recarregar para conferir persistência.
+4. Autenticar e autorizar o Swagger; criar pedido pendente e confirmar saldo inalterado; concluir e verificar baixa.
 5. Repetir a conclusão e conferir que o saldo não muda; demonstrar rejeição por saldo insuficiente.
 6. Mostrar testes, organização em camadas, migrations, decisões e limitações observadas.
 

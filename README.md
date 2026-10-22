@@ -4,7 +4,7 @@
 
 Loja de demonstração com identidade Suzano e navegação inspirada em marketplaces: busca, categorias, detalhes de produtos, carrinho persistido no navegador e checkout. A base atende ao teste técnico de frontend e backend, orientada pelo planejamento fornecido. Funciona com API simulada por MSW ou integrada ao NestJS e PostgreSQL.
 
-O checkout registra pedidos **pendentes**, sem cobrança ou envio real. Valores, estoque e apresentações são ilustrativos. Os recursos oficiais da marca e o escopo da loja estão documentados em [Loja Suzano](docs/loja-suzano.md). A administração de produtos está no rodapé; conclusão e cancelamento de pedidos continuam disponíveis no Swagger.
+O checkout registra pedidos **pendentes**, sem cobrança ou envio real. Valores, estoque e apresentações são ilustrativos. Os recursos oficiais da marca e o escopo da loja estão documentados em [Loja Suzano](docs/loja-suzano.md). A administração de produtos exige login no rodapé; conclusão e cancelamento de pedidos ficam no Swagger, também protegidos por JWT.
 
 ![Prévia desktop da loja demonstrativa](docs/preview/suzano-desktop.png)
 
@@ -13,7 +13,7 @@ O checkout registra pedidos **pendentes**, sem cobrança ou envio real. Valores,
 | Frente      | Entrega                                                                                                                     | Critérios atendidos                                                  |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | Front-end   | Next.js, TypeScript, Tailwind, Context/reducer, TanStack Query, cadastro, busca, faixa de preço, ordenação, paginação e MSW | Funcionalidades, organização, reutilização e testes de comportamento |
-| Back-end    | NestJS, camadas de controller/service/repository, PostgreSQL, CRUD, pedidos, validação e middleware de log                  | SOLID, regras de negócio, persistência e testes de estoque           |
+| Back-end    | NestJS, camadas de controller/service/repository, PostgreSQL, CRUD, pedidos, JWT, validação e middleware de log             | SOLID, regras de negócio, persistência e testes de estoque           |
 | Arquitetura | Monorepositório, contrato HTTP, migrations, transações, Swagger, Docker e CI                                                | Estrutura, consistência, reprodução do ambiente e documentação       |
 
 Detalhes e rastreabilidade: [arquitetura](docs/arquitetura.md), [decisões](docs/adrs.md) e [matriz de avaliação](docs/criterios-avaliacao.md).
@@ -30,7 +30,13 @@ cd Desafio_dev_suzano
 pnpm install --frozen-lockfile
 ```
 
-Copie `.env.example` para `.env`. No PowerShell: `Copy-Item .env.example .env`; no Linux/macOS: `cp .env.example .env`. As credenciais do exemplo são apenas locais.
+Prepare a configuração antes de iniciar a API ou qualquer comando do Compose:
+
+```sh
+pnpm auth:setup
+```
+
+O comando cria `.env` a partir de `.env.example`, gera uma chave JWT e uma senha aleatória para o administrador. Preserva configurações existentes. O acesso local fica em `tmp/admin-access.json`; esse arquivo e `.env` são ignorados pelo Git. Os dados de banco do exemplo servem apenas ao desenvolvimento. Veja [autenticação e acesso](docs/autenticacao.md).
 
 ## Front-end independente
 
@@ -38,7 +44,7 @@ Copie `.env.example` para `.env`. No PowerShell: `Copy-Item .env.example .env`; 
 pnpm dev:mock
 ```
 
-Abra [o catálogo](http://localhost:3000/produtos). Não precisa iniciar API ou banco. O indicador de demonstração explica que os cadastros simulados são mantidos em memória e voltam ao seed ao recarregar. O service worker MSW está versionado em `apps/web/public/mockServiceWorker.js`.
+Abra [o catálogo](http://localhost:3000/produtos). Não precisa iniciar API ou banco. O indicador de demonstração explica que os cadastros simulados são mantidos em memória e voltam ao seed ao recarregar. O service worker MSW está versionado em `apps/web/public/mockServiceWorker.js`. Para cadastrar no modo mock, use **admin@suzano.local / SuzanoDemo!2026**. Esse acesso é exclusivo da simulação; a API real usa a senha aleatória local.
 
 ## Aplicação integrada
 
@@ -86,6 +92,24 @@ Para validar o ambiente completo no Docker Desktop, instale o Chromium com `pnpm
 
 Ao usar outra origem para o frontend, configure `STORE_PUBLIC_ORIGIN` antes de executar o seed para que as imagens dos produtos de demonstração apontem para o endereço correto. O padrão é `http://localhost:3000`; o smoke configura sua origem automaticamente. O seed preserva registros existentes.
 
+## Acesso administrativo
+
+No rodapé, clique em **Novo produto** ou **Acesso administrativo** e informe os dados de `tmp/admin-access.json`. A sessão dura 15 minutos, fica somente na memória da página e termina ao recarregar ou clicar em **Sair**. Se expirar durante o cadastro, o formulário preserva os valores para novo login e envio manual.
+
+No Swagger, execute `POST /api/v1/auth/login` com `email` e `password`. Copie o `access_token` para **Authorize**; o Swagger acrescenta o prefixo Bearer. `GET /api/v1/auth/me` confirma o administrador autenticado.
+
+| Operação                                | Acesso                          |
+| --------------------------------------- | ------------------------------- |
+| Consultar produtos e saúde da API       | Público                         |
+| Criar pedido `Pendente` no checkout     | Público, sem reserva de estoque |
+| Criar, editar e excluir produtos        | Administrador com JWT           |
+| Listar/consultar pedidos e mudar status | Administrador com JWT           |
+| Criar pedido já `Concluído`             | Administrador com JWT           |
+
+Um cabeçalho `Authorization` enviado na criação de qualquer pedido é validado, mesmo para pendentes. Sem token válido, operações protegidas retornam `401`. O login limita a cinco tentativas por IP por minuto, incluindo sucessos; `429` informa o tempo de espera.
+
+Para trocar senha e chave, execute `pnpm auth:setup --reset` e reinicie a API ou recrie os containers. Isso invalida os tokens anteriores. Nunca coloque a chave, a senha ou o hash em variáveis `NEXT_PUBLIC_*`.
+
 ## API e regras
 
 Prefixo `/api/v1`; atributos em português. `preco_centavos` representa o preço e `total_pedido_centavos` representa o total do pedido do enunciado, ambos em BRL com inteiros. Valores desconhecidos e campos adicionais são rejeitados.
@@ -101,7 +125,7 @@ Prefixo `/api/v1`; atributos em português. `preco_centavos` representa o preço
 }
 ```
 
-Envie esse JSON em `POST /produtos`. Também existem `GET /produtos`, `GET /produtos/{id}`, `PATCH /produtos/{id}` e `DELETE /produtos/{id}`. PATCH exige ao menos um campo; estoque é uma atribuição absoluta. Exclusão é lógica e produtos excluídos deixam de aparecer nas consultas.
+Envie esse JSON em `POST /produtos` com `Authorization: Bearer <access_token>`. Também existem `GET /produtos`, `GET /produtos/{id}`, `PATCH /produtos/{id}` e `DELETE /produtos/{id}`. PATCH exige ao menos um campo; estoque é uma atribuição absoluta. Exclusão é lógica e produtos excluídos deixam de aparecer nas consultas.
 
 Exemplo de consulta: `/produtos?nome=teclado&preco_min_centavos=10000&preco_max_centavos=30000&ordenar=preco&direcao=asc&pagina=1&limite=12`. Filtros são combináveis, limites inclusivos, busca sem distinção de maiúsculas e `%`/`_` literais. `ordenar` aceita `nome`, `preco` e `criado_em`; toda ordenação desempata por UUID. Resposta: `{ "data": [], "meta": { "pagina": 1, "limite": 12, "total": 0, "total_paginas": 0 } }`.
 
@@ -168,7 +192,7 @@ pnpm build
 pnpm test:e2e:integrated
 ```
 
-A API compilada é iniciada pelo Playwright na porta 3001; uma API já iniciada pode ser reutilizada localmente, desde que tenha as mesmas migrations e configuração. Esses cenários criam registros de demonstração nesse banco; não aponte para dados de produção. O banco `_test` é exclusivo da suíte de integração da API.
+A API compilada é iniciada pelo Playwright na porta 3001; uma API já iniciada pode ser reutilizada localmente, desde que tenha as mesmas migrations e configuração. O teste lê o acesso local de `tmp/admin-access.json`. Para uma conta configurada manualmente, forneça `AUTH_ADMIN_EMAIL` e `AUTH_TEST_ADMIN_PASSWORD` ao processo de teste. A CI gera sua própria configuração descartável. Esses cenários criam registros de demonstração nesse banco; não aponte para dados de produção. O banco `_test` é exclusivo da suíte de integração da API.
 
 No **Windows**, rode `pnpm test:visual` para comparar com a baseline versionada. Em Linux/macOS, use os testes funcionais e a execução visual Windows da CI; não gere outra baseline para encobrir diferenças. Para executar todos os cenários mock, incluindo o visual, no Windows: `pnpm test:e2e`.
 
@@ -181,10 +205,10 @@ pnpm contracts:generate
 pnpm contracts:check
 ```
 
-A especificação fica em `docs/openapi.json`, com tipos de transporte gerados em `packages/contracts`. Nenhuma entidade de banco é compartilhada com o navegador.
+`contracts:check` utiliza o acesso local de `tmp/admin-access.json`, ou as variáveis `CONTRACT_ADMIN_EMAIL` e `CONTRACT_ADMIN_PASSWORD` para um ambiente próprio. A especificação fica em `docs/openapi.json`, com tipos de transporte gerados em `packages/contracts`. Nenhuma entidade de banco é compartilhada com o navegador.
 
 ## Escopo e limites
 
-Autenticação JWT, pagamentos, frete e tela de pedidos ficaram fora da entrega base, conforme a priorização do planejamento. A demonstração local não exige login. Não foram feitas medições de metas p95 ou de carga. O Compose e o pipeline estão incluídos para reprodução; seu estado de validação consta em [evidências](docs/evidencias.md).
+JWT foi acrescentado como diferencial e por solicitação posterior do usuário. Há um administrador configurado por ambiente, sem cadastro público, refresh token ou lista de revogação. Sair remove a sessão do navegador; uma cópia do token continua válida até expirar ou até a troca da chave. Pagamentos, frete e tela administrativa de pedidos continuam fora do escopo. Catálogo e checkout de pendentes são públicos. Não foram feitas medições de metas p95 ou de carga. O Compose e o pipeline estão incluídos para reprodução; seu estado de validação consta em [evidências](docs/evidencias.md).
 
 Código e documentação: [maiaJhfB/Desafio_dev_suzano](https://github.com/maiaJhfB/Desafio_dev_suzano). A publicação foi solicitada explicitamente pelo usuário. O envio ao GitHub não publica a loja em um domínio nem realiza operações comerciais.
