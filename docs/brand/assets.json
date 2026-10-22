@@ -1,0 +1,87 @@
+{
+  "brandPage": "https://www.suzano.com.br/?r=0",
+  "logo": "Inline SVG de 120x28 do cabeçalho institucional, preservado em public/brand/suzano-colorido.svg",
+  "whiteLogo": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/69cb021343dbf125cabfa9df_logo-tagline.svg",
+  "colors": {
+    "logoBlue": "#03267F",
+    "siteBlue": "#1932C8",
+    "siteGreen": "#00C85A"
+  },
+  "colorSource": "CSS oficial suzano-otimizacao.webflow.69cb021343dbf125cabfa964.1781c751b.opt.min.css",
+  "assets": [
+    {
+      "file": "report.png",
+      "url": "https://loja.suzano.com.br/_ui/responsive/theme-suzanoNew/images/home/carousel/papel-sulfite.png"
+    },
+    {
+      "file": "polen.png",
+      "url": "https://loja.suzano.com.br/_ui/responsive/theme-suzanoNew/images/home/carousel/papel-nao-revestido.png"
+    },
+    {
+      "file": "couche.png",
+      "url": "https://loja.suzano.com.br/_ui/responsive/theme-suzanoNew/images/home/carousel/papel-revestido.png"
+    },
+    {
+      "file": "cartao.png",
+      "url": "https://loja.suzano.com.br/_ui/responsive/theme-suzanoNew/images/home/carousel/papel-cartao.png"
+    },
+    {
+      "file": "logo-loja.png",
+      "url": "https://loja.suzano.com.br/_ui/responsive/theme-suzanoNew/images/home/suzano-logo.png"
+    },
+    {
+      "file": "report-a4.png",
+      "url": "https://loja.suzano.com.br/medias/A4-75-05-300x300.png?context=bWFzdGVyfGltYWdlc3wzNzQxN3xpbWFnZS9wbmd8aW1hZ2VzL2gwNC9oNmYvOTY0NDI3ODA1NDk0Mi5wbmd8YmViN2ZkNGJmNWY3M2NhMjRkMTMyZjhjNzBhMmFmOWY3YTdjYjlmOTg2OTJmNDIwOGY3ZGNiMjczNmNjNzhhNQ"
+    },
+    {
+      "file": "report-caixa.png",
+      "url": "https://loja.suzano.com.br/medias/REPORT-A4-75-10-300x300.png?context=bWFzdGVyfGltYWdlc3wzNzUwNXxpbWFnZS9wbmd8aW1hZ2VzL2hmZi9oN2YvOTY0NDI4NDI4MDg2Mi5wbmd8MWJjYjBiZTVlMzhhNTA0Njc5MTMwYjQwOGRkMDM5MjAwNzY0NzY5NTQyMGQ4ZDk5MTFiMjY2YmVkMGUxYWQ1NA"
+    },
+    {
+      "file": "report-a3.png",
+      "url": "https://loja.suzano.com.br/medias/A3-75-05-300x300.png?context=bWFzdGVyfGltYWdlc3wzNTQyMHxpbWFnZS9wbmd8aW1hZ2VzL2g5MS9oNzgvOTY0NDI3MzgyNzg3MC5wbmd8NDEzZjkzOWU3YWZhMDE2ZTU4OTZmMGY2MWE5MzIxNjg4MTBmMDE0MTU2ZjdlZWQyNjczNTc0MzUxNzYzNmY5MA"
+    },
+    {
+      "file": "report-90.png",
+      "url": "https://loja.suzano.com.br/medias/A4-90-05-300x300.png?context=bWFzdGVyfGltYWdlc3wzODE1N3xpbWFnZS9wbmd8aW1hZ2VzL2hlNS9oYTQvOTY0NDI3NzY5NDQ5NC5wbmd8YTA3NTBhNmJmYjFjYTMwNDNiNTU2NTg4MTMxMGFkZjc1NTEwODFmNTAwOGE4YWE3ZTQyODJjNWJkNjkwMTNkNA"
+    },
+    {
+      "file": "higiene.webp",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/69cb021343dbf125cabfb96f_slider-higiene-nossas-marcas-card1.webp"
+    },
+    {
+      "file": "toalha.webp",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/69cb021343dbf125cabfb974_slider-higiene-nossas-marcas-card4.webp"
+    },
+    {
+      "file": "bluecup.webp",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/69cb021343dbf125cabfae6d_hero-papeis-e-embalagens.webp"
+    },
+    {
+      "file": "greenbag.webp",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/69cb021343dbf125cabfb71d_slider-papeis-e-embalagens-nossas-marcas-card1.webp"
+    },
+    {
+      "file": "reciclato.webp",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/69cb021343dbf125cabfb706_slider-papeis-e-embalagens-nossas-marcas-card4.webp"
+    },
+    {
+      "file": "report-marca.webp",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/69cb021343dbf125cabfb71e_slider-papeis-e-embalagens-nossas-marcas-card2.webp"
+    }
+  ],
+  "fonts": [
+    {
+      "file": "SuzanoText-Regular.woff2",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/6a551ca10ee10e210b6557b5_SuzanoText-Regular.woff2"
+    },
+    {
+      "file": "SuzanoText-Medium.woff2",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/6a551c1473abf0357566ac6e_SuzanoText-Medium.woff2"
+    },
+    {
+      "file": "SuzanoText-Bold.woff2",
+      "url": "https://cdn.prod.website-files.com/69cb021343dbf125cabfa994/6a54f43ce598b2d2e3929c08_SuzanoText-Bold.woff2"
+    }
+  ]
+}

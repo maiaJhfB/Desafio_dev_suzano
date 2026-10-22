@@ -1,0 +1,92 @@
+x-api-image: &api-image
+  image: ${COMPOSE_PROJECT_NAME:-suzano}-api:local
+  build:
+    context: .
+    dockerfile: Dockerfile.api
+
+x-api-runtime: &api-runtime
+  init: true
+  read_only: true
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=32m
+  cap_drop: [ALL]
+  security_opt: ['no-new-privileges:true']
+  environment:
+    DATABASE_URL: postgresql://catalogo:catalogo@db:5432/catalogo
+    PORT: 3001
+    CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    NODE_ENV: production
+
+services:
+  db:
+    image: postgres:18.4-alpine
+    environment:
+      POSTGRES_USER: catalogo
+      POSTGRES_PASSWORD: catalogo
+      POSTGRES_DB: catalogo
+    ports:
+      - '127.0.0.1:${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U catalogo -d catalogo']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  migrate:
+    <<: [*api-image, *api-runtime]
+    command:
+      ['node', 'node_modules/typeorm/cli.js', '-d', 'dist/database/data-source.js', 'migration:run']
+    depends_on:
+      db:
+        condition: service_healthy
+  api:
+    <<: [*api-image, *api-runtime]
+    ports:
+      - '127.0.0.1:${API_PORT:-3001}:3001'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3001/api/v1/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  web:
+    image: ${COMPOSE_PROJECT_NAME:-suzano}-web:local
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_MODE: real
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:3001/api/v1}
+    init: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    ports:
+      - '127.0.0.1:${WEB_PORT:-3000}:3000'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/produtos').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

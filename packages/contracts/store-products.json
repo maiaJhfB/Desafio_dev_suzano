@@ -1,0 +1,146 @@
+[
+  {
+    "id": "10000000-0000-4000-8000-000000000001",
+    "nome": "Papel Report Premium A4 75g — 5 pacotes",
+    "categoria": "Papel sulfite",
+    "descricao": "Caixa com 5 pacotes de 500 folhas. Papel branco para impressões e para a rotina do seu negócio.",
+    "preco_centavos": 16990,
+    "quantidade_estoque": 48,
+    "imagem_url": "http://localhost:3000/store/report-a4.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000002",
+    "nome": "Papel Pólen Soft 80g — 250 folhas",
+    "categoria": "Papéis gráficos",
+    "descricao": "Tonalidade suave para projetos editoriais, livros e novas ideias. Pacote de demonstração com 250 folhas.",
+    "preco_centavos": 5990,
+    "quantidade_estoque": 32,
+    "imagem_url": "http://localhost:3000/store/polen.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000003",
+    "nome": "Papel Reciclato A4 75g — 500 folhas",
+    "categoria": "Papel sulfite",
+    "descricao": "Textura natural e versatilidade para suas impressões. Apresentação ilustrativa com 500 folhas.",
+    "preco_centavos": 3590,
+    "quantidade_estoque": 65,
+    "imagem_url": "http://localhost:3000/store/reciclato.webp"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000004",
+    "nome": "Papelcartão Supremo 250g — 50 folhas",
+    "categoria": "Papelcartão",
+    "descricao": "Resistência e acabamento para embalagens e projetos criativos. Pacote ilustrativo de 50 folhas.",
+    "preco_centavos": 6990,
+    "quantidade_estoque": 22,
+    "imagem_url": "http://localhost:3000/store/cartao.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000005",
+    "nome": "Papel higiênico Neve — 12 rolos",
+    "categoria": "Higiene",
+    "descricao": "Cuidado e maciez para o dia a dia da sua família. Apresentação e imagem ilustrativas.",
+    "preco_centavos": 2490,
+    "quantidade_estoque": 80,
+    "imagem_url": "http://localhost:3000/store/higiene.webp"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000006",
+    "nome": "Papel Bluecup para copos — 50 folhas",
+    "categoria": "Embalagens",
+    "descricao": "Papel para o desenvolvimento de copos e soluções de food service. Apresentação ilustrativa.",
+    "preco_centavos": 7990,
+    "quantidade_estoque": 34,
+    "imagem_url": "http://localhost:3000/store/bluecup.webp"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000007",
+    "nome": "Papel Report Premium A4 75g — 10 pacotes",
+    "categoria": "Papel sulfite",
+    "descricao": "Caixa com 10 pacotes de 500 folhas para abastecer seu escritório, escola ou gráfica.",
+    "preco_centavos": 31990,
+    "quantidade_estoque": 40,
+    "imagem_url": "http://localhost:3000/store/report-caixa.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000008",
+    "nome": "Papel Couché brilho 150g — 250 folhas",
+    "categoria": "Papéis gráficos",
+    "descricao": "Superfície revestida para valorizar imagens e projetos gráficos. Pacote de demonstração.",
+    "preco_centavos": 11490,
+    "quantidade_estoque": 21,
+    "imagem_url": "http://localhost:3000/store/couche.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000009",
+    "nome": "Papel Report Premium A3 75g — 5 pacotes",
+    "categoria": "Papel sulfite",
+    "descricao": "Formato A3 para suas impressões e projetos. Caixa com 5 pacotes de 500 folhas.",
+    "preco_centavos": 29990,
+    "quantidade_estoque": 15,
+    "imagem_url": "http://localhost:3000/store/report-a3.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000010",
+    "nome": "Papel Pólen Bold 90g — 250 folhas",
+    "categoria": "Papéis gráficos",
+    "descricao": "Uma escolha para projetos editoriais e impressos com personalidade. Apresentação ilustrativa.",
+    "preco_centavos": 7490,
+    "quantidade_estoque": 18,
+    "imagem_url": "http://localhost:3000/store/polen.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000011",
+    "nome": "Papel higiênico Mimmo — 16 rolos",
+    "categoria": "Higiene",
+    "descricao": "Conforto para os cuidados de todos os dias. Apresentação e imagem ilustrativas.",
+    "preco_centavos": 3290,
+    "quantidade_estoque": 55,
+    "imagem_url": "http://localhost:3000/store/higiene.webp"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000012",
+    "nome": "Papel toalha Scott — 2 rolos",
+    "categoria": "Higiene",
+    "descricao": "Praticidade para a limpeza e os pequenos cuidados com a casa. Apresentação ilustrativa.",
+    "preco_centavos": 1190,
+    "quantidade_estoque": 76,
+    "imagem_url": "http://localhost:3000/store/toalha.webp"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000013",
+    "nome": "Papel Greenbag kraft 90g — 100 folhas",
+    "categoria": "Embalagens",
+    "descricao": "Papel para a criação de sacolas e embalagens. Pacote de demonstração com 100 folhas.",
+    "preco_centavos": 4590,
+    "quantidade_estoque": 28,
+    "imagem_url": "http://localhost:3000/store/greenbag.webp"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000014",
+    "nome": "Papelcartão Duo Design 300g — 50 folhas",
+    "categoria": "Papelcartão",
+    "descricao": "Versatilidade para desenvolver embalagens e materiais criativos. Apresentação ilustrativa.",
+    "preco_centavos": 8990,
+    "quantidade_estoque": 19,
+    "imagem_url": "http://localhost:3000/store/cartao.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000015",
+    "nome": "Papel Report Premium A4 90g — 5 pacotes",
+    "categoria": "Papel sulfite",
+    "descricao": "Papel de maior gramatura para suas impressões. Caixa com 5 pacotes de 500 folhas.",
+    "preco_centavos": 21990,
+    "quantidade_estoque": 12,
+    "imagem_url": "http://localhost:3000/store/report-90.png"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000016",
+    "nome": "Papel Reciclato 90g — 250 folhas",
+    "categoria": "Papéis gráficos",
+    "descricao": "Papel de textura natural para impressos e projetos editoriais. Apresentação ilustrativa.",
+    "preco_centavos": 4990,
+    "quantidade_estoque": 0,
+    "imagem_url": "http://localhost:3000/store/reciclato.webp"
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "name": "catalogo-produtos-pedidos",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "dev:mock": "cross-env NEXT_PUBLIC_API_MODE=mock pnpm --filter @catalogo/web dev",
+    "dev": "concurrently -k -n api,web \"pnpm --filter @estoque/api dev\" \"cross-env NEXT_PUBLIC_API_MODE=real pnpm --filter @catalogo/web dev\"",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "eslint apps packages scripts --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:unit": "pnpm -r --if-present test:unit",
+    "test:integration": "pnpm --filter @estoque/api test:integration",
+    "test:e2e": "pnpm --filter @catalogo/web test:e2e",
+    "test:e2e:integrated": "pnpm --filter @catalogo/web test:e2e:integrated",
+    "test:visual": "pnpm --filter @catalogo/web test:visual",
+    "db:up": "docker compose up -d db",
+    "db:migrate": "pnpm --filter @estoque/api db:migrate",
+    "db:seed": "pnpm --filter @estoque/api db:seed",
+    "contracts:generate": "node scripts/generate-contracts.mjs",
+    "contracts:check": "node scripts/check-contracts.mjs",
+    "db:local": "node scripts/local-postgres.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "concurrently": "^9.2.0",
+    "cross-env": "^10.1.0",
+    "embedded-postgres": "18.4.0-beta.17",
+    "eslint": "^9.39.0",
+    "openapi-typescript": "^7.10.0",
+    "prettier": "^3.9.10",
+    "typescript-eslint": "^8.46.0"
+  }
+}

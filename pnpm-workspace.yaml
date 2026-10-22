@@ -1,0 +1,15 @@
+packages:
+  - apps/*
+  - packages/*
+
+allowBuilds:
+  '@embedded-postgres/windows-x64': true
+  '@embedded-postgres/linux-x64': true
+  '@parcel/watcher': true
+  '@scarf/scarf': false
+  '@nestjs/core': true
+  '@swc/core': true
+  esbuild: true
+  sharp: true
+  msw: false
+  unrs-resolver: true

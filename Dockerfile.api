@@ -1,0 +1,24 @@
+FROM node:24.19.0-bookworm-slim AS build
+WORKDIR /app
+RUN npm install -g pnpm@11.25.0
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/contracts/package.json packages/contracts/package.json
+RUN pnpm install --frozen-lockfile
+COPY apps/api apps/api
+COPY packages/contracts packages/contracts
+RUN pnpm --filter @estoque/api build \
+    && pnpm --filter @estoque/api deploy --prod --legacy --offline /out/api
+
+FROM node:24.19.0-bookworm-slim AS runtime
+ENV NODE_ENV=production
+WORKDIR /app/apps/api
+COPY --from=build --chown=node:node /out/api/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/apps/api/package.json ./package.json
+COPY --from=build --chown=node:node /app/apps/api/dist ./dist
+# The compiled seed resolves this fixture from /app/apps/api/dist/database.
+COPY --from=build --chown=node:node /app/packages/contracts/store-products.json /app/packages/contracts/store-products.json
+USER node
+EXPOSE 3001
+CMD ["node", "dist/main.js"]

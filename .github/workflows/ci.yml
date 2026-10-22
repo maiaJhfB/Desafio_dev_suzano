@@ -1,0 +1,87 @@
+name: Validação
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  docker:
+    name: Docker — ambiente completo e compra real
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @catalogo/web exec playwright install --with-deps chromium
+      - run: node scripts/docker-smoke.mjs
+        env:
+          CI: 'true'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-docker
+          path: tmp/docker-smoke
+          if-no-files-found: warn
+  application:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:18.4-alpine
+        env:
+          POSTGRES_USER: catalogo
+          POSTGRES_PASSWORD: catalogo
+          POSTGRES_DB: catalogo_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U catalogo -d catalogo_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://catalogo:catalogo@localhost:5432/catalogo_test
+      TEST_DATABASE_URL: postgresql://catalogo:catalogo@localhost:5432/catalogo_test
+      NEXT_PUBLIC_API_MODE: mock
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:3001/api/v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm db:migrate
+      - run: pnpm test:integration
+      - run: pnpm db:seed
+      - run: pnpm build
+      - run: pnpm --filter @catalogo/web exec playwright install --with-deps chromium
+      - run: pnpm test:e2e --grep-invert @visual
+      - run: pnpm test:e2e:integrated
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: resultados-dos-testes
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+  visual:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @catalogo/web exec playwright install chromium
+      - run: pnpm test:visual
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: diferencas-visuais
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results

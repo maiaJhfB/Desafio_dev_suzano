@@ -1,0 +1,126 @@
+@font-face {
+  font-family: 'Suzano Text';
+  src: url('/brand/SuzanoText-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Suzano Text';
+  src: url('/brand/SuzanoText-Medium.woff2') format('woff2');
+  font-weight: 500 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Suzano Text';
+  src: url('/brand/SuzanoText-Bold.woff2') format('woff2');
+  font-weight: 700 900;
+  font-display: swap;
+}
+@theme {
+  --color-suzano-blue: #1932c8;
+  --color-suzano-green: #00c85a;
+  --font-sans: 'Suzano Text', Arial, sans-serif;
+}
+:root {
+  color-scheme: light;
+  --blue: #1932c8;
+  --navy: #03267f;
+  --green: #00c85a;
+  --ink: #263048;
+  --muted: #6b7280;
+  --line: #e3e6ed;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 24px;
+}
+body {
+  margin: 0;
+  background: #f2f3f5;
+  color: var(--ink);
+  font:
+    14px/1.5 'Suzano Text',
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button,
+select,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+select {
+  cursor: pointer;
+}
+button {
+  border: 0;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+button,
+input,
+select,
+textarea {
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid #00ad4e;
+  outline-offset: 4px;
+}
+::selection {
+  color: #fff;
+  background: var(--blue);
+}
+.sr-only,
+.cart-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: -80px;
+  left: 16px;
+  padding: 12px 20px;
+  background: #fff;
+  color: var(--navy);
+  border-radius: 5px;
+}
+.skip-link:focus {
+  top: 10px;
+}
+.store-container {
+  width: 100%;
+  max-width: 1280px;
+  padding: 0 28px;
+  margin: 0 auto;
+}

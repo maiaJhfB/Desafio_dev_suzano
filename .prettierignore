@@ -1,0 +1,15 @@
+node_modules
+.next
+dist
+.cache
+.swc
+tmp
+coverage
+playwright-report
+test-results
+.local-postgres
+pnpm-lock.yaml
+apps/web/public/mockServiceWorker.js
+apps/web/next-env.d.ts
+packages/contracts/src/generated.ts
+docs/openapi.json

@@ -1,0 +1,103 @@
+.store-brand-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0 42px;
+  padding: 29px 42px;
+  background: #e0eae3;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+}
+.store-brand-banner > div,
+.store-brand-banner > img {
+  position: relative;
+  z-index: 1;
+}
+.store-brand-banner > div > p {
+  font-size: 8px;
+  letter-spacing: 1.7px;
+  color: #527060;
+}
+.store-brand-banner h2 {
+  color: var(--navy);
+  font-size: 28px;
+  line-height: 1.2;
+  margin: 8px 0 13px;
+  letter-spacing: -0.8px;
+}
+.store-brand-banner h2 span {
+  color: #00863d;
+}
+.store-brand-banner a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--navy);
+}
+.store-brand-banner > img {
+  margin-right: 80px;
+}
+.banner-leaf {
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  color: #00a44a17;
+  transform: rotate(18deg);
+  stroke-width: 0.7;
+}
+.store-footer {
+  background: #fff;
+  border-top: 1px solid #e2e5ea;
+}
+.footer-main {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.1fr;
+  gap: 50px;
+  padding: 40px 0 35px;
+}
+.footer-main > div > p {
+  font-size: 10px;
+  color: #7e8593;
+  margin-top: 12px;
+  line-height: 1.8;
+}
+.footer-main h2 {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.footer-main a,
+.footer-main > div > button:not(.button) {
+  display: block;
+  padding: 4px 0;
+  background: none;
+  color: #727a89;
+  font-size: 10px;
+}
+.footer-main a:hover,
+.footer-main > div > button:not(.button):hover {
+  color: var(--blue);
+}
+.footer-admin .button {
+  margin-top: 12px;
+  font-size: 10px;
+  min-height: 32px;
+}
+.footer-bottom {
+  border-top: 1px solid #eceef2;
+  padding: 20px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  font-size: 8px;
+  color: #7e8593;
+}
+.footer-bottom p {
+  max-width: 650px;
+}
+.footer-bottom > span {
+  white-space: nowrap;
+}

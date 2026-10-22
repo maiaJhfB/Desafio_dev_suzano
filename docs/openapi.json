@@ -1,0 +1,1319 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/health/live": {
+      "get": {
+        "operationId": "HealthController_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/produtos": {
+      "get": {
+        "operationId": "ProdutosController_list",
+        "parameters": [
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 12,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "direcao",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "nome",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 120,
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoria",
+            "required": false,
+            "in": "query",
+            "description": "Categoria exata do produto.",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 80,
+              "pattern": "\\S",
+              "type": "string"
+            }
+          },
+          {
+            "name": "preco_min_centavos",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 100000000,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "preco_max_centavos",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "maximum": 100000000,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "ordenar",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "criado_em",
+              "type": "string",
+              "enum": [
+                "nome",
+                "preco",
+                "criado_em"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutosPageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Listar produtos com busca, filtros, ordenação e paginação",
+        "tags": [
+          "Produtos"
+        ]
+      },
+      "post": {
+        "operationId": "ProdutosController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProdutoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Produtos"
+        ]
+      }
+    },
+    "/api/v1/produtos/{id}": {
+      "get": {
+        "operationId": "ProdutosController_find",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Produtos"
+        ]
+      },
+      "patch": {
+        "operationId": "ProdutosController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProdutoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Produtos"
+        ]
+      },
+      "put": {
+        "operationId": "ProdutosController_replace",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProdutoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Produtos"
+        ]
+      },
+      "delete": {
+        "operationId": "ProdutosController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Produtos"
+        ]
+      }
+    },
+    "/api/v1/pedidos": {
+      "get": {
+        "operationId": "PedidosController_list",
+        "parameters": [
+          {
+            "name": "pagina",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 12,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Pendente",
+                "Concluído",
+                "Cancelado"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidosPageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Pedidos"
+        ]
+      },
+      "post": {
+        "operationId": "PedidosController_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "UUID opcional para repetir uma criação com segurança. A mesma chave e os mesmos produtos/quantidades/status retornam a resposta original (201), sem criar outro pedido. Reutilização com dados diferentes retorna 409. As chaves bem-sucedidas permanecem persistidas; falhas não consomem a chave.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePedidoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "headers": {
+              "Location": {
+                "description": "Caminho do pedido criado.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Idempotency-Replayed": {
+                "description": "true quando a resposta original foi recuperada.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "true",
+                    "false"
+                  ]
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Criar pedido calculando preços e total no servidor",
+        "tags": [
+          "Pedidos"
+        ]
+      }
+    },
+    "/api/v1/pedidos/{id}": {
+      "get": {
+        "operationId": "PedidosController_find",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Pedidos"
+        ]
+      }
+    },
+    "/api/v1/pedidos/{id}/status": {
+      "patch": {
+        "operationId": "PedidosController_updateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PedidoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Concluir ou cancelar um pedido pendente",
+        "tags": [
+          "Pedidos"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Estoque — API",
+    "description": "Produtos e pedidos. Todos os valores monetários são inteiros em centavos. Pedidos pendentes validam estoque sem reserva; a conclusão baixa o estoque em uma transação.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "database": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ErrorDetailDto": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "reason"
+        ]
+      },
+      "ErrorBodyDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorDetailDto"
+            }
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "details",
+          "request_id"
+        ]
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBodyDto"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "ProdutoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "categoria": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "descricao": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "preco_centavos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "quantidade_estoque": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "imagem_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "nome",
+          "categoria",
+          "descricao",
+          "preco_centavos",
+          "quantidade_estoque",
+          "imagem_url",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "PaginationResponseDto": {
+        "type": "object",
+        "properties": {
+          "pagina": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total_paginas": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "pagina",
+          "limite",
+          "total",
+          "total_paginas"
+        ]
+      },
+      "ProdutosPageResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProdutoResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationResponseDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "CreateProdutoDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "\\S"
+          },
+          "categoria": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "\\S"
+          },
+          "descricao": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "pattern": "\\S"
+          },
+          "preco_centavos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "quantidade_estoque": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "imagem_url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://",
+            "nullable": true,
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "nome",
+          "categoria",
+          "descricao",
+          "preco_centavos",
+          "quantidade_estoque"
+        ]
+      },
+      "UpdateProdutoDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "\\S"
+          },
+          "categoria": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "\\S"
+          },
+          "descricao": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "pattern": "\\S"
+          },
+          "preco_centavos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "quantidade_estoque": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "imagem_url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://",
+            "nullable": true,
+            "maxLength": 2048
+          }
+        }
+      },
+      "ItemPedidoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "produto_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome_produto": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "preco_unitario_centavos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000000
+          },
+          "quantidade": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "subtotal_centavos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000000
+          }
+        },
+        "required": [
+          "id",
+          "produto_id",
+          "nome_produto",
+          "preco_unitario_centavos",
+          "quantidade",
+          "subtotal_centavos"
+        ]
+      },
+      "PedidoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Pendente",
+              "Concluído",
+              "Cancelado"
+            ]
+          },
+          "total_pedido_centavos": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "produtos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemPedidoResponseDto"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "total_pedido_centavos",
+          "produtos",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "PedidosPageResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PedidoResponseDto"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationResponseDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "ItemPedidoDto": {
+        "type": "object",
+        "properties": {
+          "produto_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantidade": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "produto_id",
+          "quantidade"
+        ]
+      },
+      "CreatePedidoDto": {
+        "type": "object",
+        "properties": {
+          "produtos": {
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemPedidoDto"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Pendente",
+              "Concluído"
+            ],
+            "default": "Pendente",
+            "nullable": false
+          }
+        },
+        "required": [
+          "produtos"
+        ]
+      },
+      "UpdateStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "Concluído",
+              "Cancelado"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      }
+    }
+  }
+}
