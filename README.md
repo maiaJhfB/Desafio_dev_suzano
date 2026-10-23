@@ -206,9 +206,3 @@ pnpm contracts:check
 ```
 
 `contracts:check` utiliza o acesso local de `tmp/admin-access.json`, ou as variáveis `CONTRACT_ADMIN_EMAIL` e `CONTRACT_ADMIN_PASSWORD` para um ambiente próprio. A especificação fica em `docs/openapi.json`, com tipos de transporte gerados em `packages/contracts`. Nenhuma entidade de banco é compartilhada com o navegador.
-
-## Escopo e limites
-
-JWT foi acrescentado como diferencial e por solicitação posterior do usuário. Há um administrador configurado por ambiente, sem cadastro público, refresh token ou lista de revogação. Sair remove a sessão do navegador; uma cópia do token continua válida até expirar ou até a troca da chave. Pagamentos, frete e tela administrativa de pedidos continuam fora do escopo. Catálogo e checkout de pendentes são públicos. Não foram feitas medições de metas p95 ou de carga. O Compose e o pipeline estão incluídos para reprodução; seu estado de validação consta em [evidências](docs/evidencias.md).
-
-Código e documentação: [maiaJhfB/Desafio_dev_suzano](https://github.com/maiaJhfB/Desafio_dev_suzano). A publicação foi solicitada explicitamente pelo usuário. O envio ao GitHub não publica a loja em um domínio nem realiza operações comerciais.
